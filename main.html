@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>Insert title here</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+		integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
+	<link rel="stylesheet" href="css/style.css">
+	<script type="text/javascript">
+		var socket = null;
+		var timer = null;
+		$(document).ready(function () {
+			socket = io.connect(); // 3000port
+			// Node.js보낸 데이터를 수신하는 부분
+			socket.on("socket_evt_mqtt", function (data) {
+				data = JSON.parse(data);
+				$(".mqttlist").html('<li>' + data.tmp + '(' + data.hum + '%)' + '</li>');
+			});
+			if (timer == null) {
+				timer = window.setInterval("timer1()", 1000);
+			}
+		});
+		function timer1() {
+			socket.emit("socket_evt_mqtt", JSON.stringify({}));
+			console.log("---------");
+		}
+		function ledOnOff(value) {
+			// {“led”:1}, {“led”:2}
+			socket.emit("socket_evt_led", JSON.stringify({ led: Number(value) }));
+		}
+	</script>
+
+	<style>
+		*{
+			font-family: 'BMEULJIRO';
+		}
+		
+	</style>
+</head>
+
+<body>
+
+	<!-- 네브바 -->
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+		<a class="navbar-brand" href="#">사물인터넷 IoT</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+			aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item active">
+					<a class="nav-link" href="#">안경환<span class="sr-only">(current)</span></a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="#">전자공학과</a>
+				</li>
+				
+		</div>
+	</nav>
+
+	<div class="container">
+		<div class="row">
+			<!-- 온도 & 습도 정보 -->
+			<div class="col-4">
+				<div class="card" style="width: 18rem;">
+					<img src="tmp.png" class="card-img-top" alt="..." style="height: 250px;">
+					<div class="card-body">
+						<h5 class="card-title">온도 & 습도</h5>
+						<div id="msg">
+							<div id="mqtt_logs">
+								<ul class="mqttlist">온습도 값</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- LED 조정-->
+			<div class="col-4">
+				<div class="card" style="width: 18rem;">
+					<img src="LED1.jpg" class="card-img-top" alt="..." style="height: 250px;">
+					<div class="card-body">
+						<h5 class="card-title">LED 조절</h5>
+						<div class="card-text" >
+							<button type="button" class="btn btn-primary" onclick="ledOnOff(1)">LED_ON</button>
+							<button type="button" class="btn btn-danger" onclick="ledOnOff(2)">LED_OFF</button>
+						</div>
+					</div>
+				</div>
+			</div>
+	
+			<!-- 전류값 -->
+			<div class="col-4">
+				<div class="card" style="width: 18rem;">
+					<img src="current.jpg" class="card-img-top" alt="..."style="height: 250px;">
+					<div class="card-body" style="width: 288px; height: 116px;">
+						<h5 class="card-title">전류 & 전압</h5>
+						<p class="card-text">전류,전압 추정치</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+
+	</div>
+</body>
+
+</html>
